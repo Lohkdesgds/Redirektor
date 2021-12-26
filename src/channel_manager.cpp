@@ -14,11 +14,11 @@ void ChannelManager::async_clean()
             std::this_thread::sleep_for(std::chrono::seconds(delta_loop));
             
             std::unique_lock<std::shared_mutex> luck(access);
-            const uint64_t time_now_s = std::chrono::duration_cast<std::chrono::duration<uint64_t, std::milli>>(std::chrono::system_clock::now().time_since_epoch()).count();
+            const uint64_t time_now_s = std::chrono::duration_cast<std::chrono::duration<uint64_t, std::ratio<1, 1>>>(std::chrono::system_clock::now().time_since_epoch()).count();
 
             for(auto it = chs.begin(); it != chs.end();)
             {
-                if (it->deatht >= time_now_s) {
+                if (it->deatht < time_now_s) {
                     if (it->ch->save()){
                         cout << console::color::DARK_GRAY << "Cleaned #" << it->ch->get_id() << " from RAM.";
                         it = chs.erase(it);
@@ -66,7 +66,7 @@ std::shared_ptr<ChannelConf> ChannelManager::get(const dpp::snowflake& sf)
     
     cout << console::color::DARK_GRAY << "Loading config for #" << sf << "...";
     std::unique_lock<std::shared_mutex> luck(access);
-    const uint64_t time_now_s = std::chrono::duration_cast<std::chrono::duration<uint64_t, std::milli>>(std::chrono::system_clock::now().time_since_epoch()).count();
+    const uint64_t time_now_s = std::chrono::duration_cast<std::chrono::duration<uint64_t, std::ratio<1, 1>>>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     cout << console::color::DARK_GRAY << "#" << sf << " is good to go.";
     return chs.emplace_back(time_now_s + delta_time_cleanup, std::shared_ptr<ChannelConf>(new ChannelConf(sf))).ch;
