@@ -70,8 +70,8 @@ bool ChannelConf::save()
     try {
         if (saved_already) return true;
         if (last_id == 0) return false;
-        std::error_code err;
-        std::filesystem::create_directories(savepath, err);
+
+        mkdir(savepath.c_str(), 0777);
 
         std::ofstream fp(savepath + "/" + std::to_string(last_id));
         if (!fp.good() || !fp.is_open()) return false;

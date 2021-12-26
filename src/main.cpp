@@ -130,6 +130,7 @@ int main()
             }
             if (confnum < 0 || confnum >= 10) { // for now allow up to 10 configs per chat
                 event.edit_response(dpp::message().set_flags(64).set_content("Invalid number. Please try in this range: [0, 10)"));
+                return;
             }
 
             bot.roles_get(event.command.guild_id, [event, cmd, &chmng, confnum](const dpp::confirmation_callback_t& ev){ // role_map
@@ -183,6 +184,7 @@ int main()
                                 "redirect_to_ch  = '" + (sc.redir_id != 0 ? std::to_string(sc.redir_id) : "none") + "'\n"
                                 "post_errors     = '" + std::string(sc.post_error ? "Yes" : "No") + "'\n"
                                 "detailed        = '" + std::string(sc.detailed ? "Yes" : "No") + "'\n"
+                                "use_username    = '" + std::string(sc.username_instead ? "Yes" : "No") + "'\n"
                                 "```";
                             
                             event.edit_response(msg);
@@ -198,7 +200,9 @@ int main()
                         if (get_from(cmd.options, wrk, "redirect-to"))      chconf->index(confnum, [&](SingleConf& sc) { sc.redir_id = log_get<dpp::snowflake>(wrk); });
                         if (get_from(cmd.options, wrk, "redirect-reset"))   chconf->index(confnum, [&](SingleConf& sc) { if (log_get<bool>(wrk)) sc.redir_id = 0; });
                         if (get_from(cmd.options, wrk, "post-errors"))      chconf->index(confnum, [&](SingleConf& sc) { sc.post_error = log_get<bool>(wrk); });   
-                        if (get_from(cmd.options, wrk, "detailed"))         chconf->index(confnum, [&](SingleConf& sc) { sc.detailed = log_get<bool>(wrk); });   
+                        if (get_from(cmd.options, wrk, "detailed"))         chconf->index(confnum, [&](SingleConf& sc) { sc.detailed = log_get<bool>(wrk); });
+                        if (get_from(cmd.options, wrk, "use-username"))     chconf->index(confnum, [&](SingleConf& sc) { sc.username_instead = log_get<bool>(wrk); });
+
                         event.edit_response(dpp::message().set_flags(64).set_content("Good."));         
                     }
                 }
@@ -279,8 +283,12 @@ int main()
                                 dpp::command_option(dpp::co_boolean, "post-errors", "Post any error in chat? (default: true)", false)
                             )
                             .add_option(
-                                dpp::command_option(dpp::co_boolean, "detailed", "Resulting messages with detailed info or simple?", false)
+                                dpp::command_option(dpp::co_boolean, "detailed", "Resulting messages with detailed info or simple? (default: false)", false)
                             )
+                            .add_option(
+                                dpp::command_option(dpp::co_boolean, "use-username", "On copy, use User#IDDD instead of nick in all cases? (default: false)", false)
+                            )
+
                     );
             }
 

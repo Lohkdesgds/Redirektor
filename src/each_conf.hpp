@@ -40,6 +40,7 @@ struct SingleConf {
     dpp::snowflake redir_id = 0; // chat to copy this to (disabled for reaction)
     bool post_error = true;
     bool detailed = false;
+    bool username_instead = false;
 
     SingleConf() = default;
     SingleConf(const nlohmann::json&);

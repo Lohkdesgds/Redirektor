@@ -50,8 +50,9 @@ void SingleConf::handle(const dpp::message_create_t& msg, handptr shr) const
             creat->message_create(buck);
         }        
     };
-    const auto gen_header = [dt = detailed, chid = msg.msg.channel_id, nick = msg.msg.member.nickname, usrnm = msg.msg.author.username, iddd = msg.msg.author.discriminator](const std::string& str = {}){
-        return (dt ? ("**[`" + dpp::utility::current_date_time() + "`]<#" + std::to_string(chid) + ">> " + usrnm + "#" + std::to_string(iddd) + ":**") : ("**" + nick + ":**")) + (str.empty() ? "" : (" " + str));
+    const auto gen_header = [dt = detailed, uinst = username_instead, chid = msg.msg.channel_id, nick = msg.msg.member.nickname, usrnm = msg.msg.author.username, iddd = msg.msg.author.discriminator](const std::string& str = {}){
+        const std::string nm = ((uinst || nick.empty()) ? (usrnm + "#" + std::to_string(iddd)) : nick);
+        return (dt ? ("**[`" + dpp::utility::current_date_time() + "`]<#" + std::to_string(chid) + ">> " + nm + ":**") : ("**" + nm + ":**")) + (str.empty() ? "" : (" " + str));
     };
     
     try{
@@ -212,19 +213,21 @@ nlohmann::json SingleConf::to_json() const
     j["5per"] = post_error;
     j["6ttp"] = static_cast<int32_t>(trigger_type);
     j["7dtl"] = detailed;
+    j["8uis"] = username_instead;
     return j;
 }
 
 void SingleConf::from_json(const nlohmann::json& j)
 {
-    regx         = any_get<std::string>(&j, "0rgx", regx); // rgx = regex
-    min_size     = any_get<int32_t>(&j, "1lsz", min_size); // lsz = lower size
-    max_size     = any_get<int32_t>(&j, "2gsz", max_size); // gsz = greater size
-    del_trigger  = any_get<bool>(&j, "3dtg", del_trigger); // del trigger
-    redir_id     = any_get<dpp::snowflake>(&j, "4rid", redir_id);
-    post_error   = any_get<bool>(&j, "5per", post_error);
-    trigger_type = static_cast<gconf_type>(any_get<int32_t>(&j, "6ttp", static_cast<int32_t>(trigger_type)));
-    detailed     = any_get<bool>(&j, "7dtl", detailed);
+    regx              = any_get<std::string>(&j, "0rgx", regx); // rgx = regex
+    min_size          = any_get<int32_t>(&j, "1lsz", min_size); // lsz = lower size
+    max_size          = any_get<int32_t>(&j, "2gsz", max_size); // gsz = greater size
+    del_trigger       = any_get<bool>(&j, "3dtg", del_trigger); // del trigger
+    redir_id          = any_get<dpp::snowflake>(&j, "4rid", redir_id);
+    post_error        = any_get<bool>(&j, "5per", post_error);
+    trigger_type      = static_cast<gconf_type>(any_get<int32_t>(&j, "6ttp", static_cast<int32_t>(trigger_type)));
+    detailed          = any_get<bool>(&j, "7dtl", detailed);
+    username_instead  = any_get<bool>(&j, "8uis", username_instead);
 }
 
 std::string gconf_to_str(const SingleConf::gconf_type& g)
